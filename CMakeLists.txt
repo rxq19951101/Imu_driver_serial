@@ -12,6 +12,8 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   serial
   std_msgs
+  sensor_msgs
+  nodelet
 )
 
 ## System dependencies are found with CMake's conventions
@@ -107,6 +109,9 @@ catkin_package(
 	CATKIN_DEPENDS
 	  serial
 	  std_msgs
+    sensor_msgs
+    nodelet
+    roscpp
 #  INCLUDE_DIRS include
 #  LIBRARIES rosserial
 #  CATKIN_DEPENDS roscpp rospy serial std_msgs
