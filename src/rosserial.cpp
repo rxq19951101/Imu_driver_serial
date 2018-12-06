@@ -7,6 +7,7 @@
 #include <sstream>
 #include <sensor_msgs/Imu.h>
 #include <sensor_msgs/MagneticField.h>
+#include <tf/transform_broadcaster.h>
 template <class Type>
 Type stringToNum(const std::string& str)
 {
@@ -73,7 +74,7 @@ int main (int argc, char** argv)
     } 
     ser.write("s");              //向串口发送's'代表开始传输数据
     //指定循环的频率 
-    ros::Rate loop_rate(2000);
+    ros::Rate loop_rate(500);
     std::string swap;
     while(ros::ok()) 
     { 
@@ -82,19 +83,19 @@ int main (int argc, char** argv)
             ROS_INFO_STREAM("Reading from serial port\n"); 
             std_msgs::String result;
             std::string s;
-            std::cout<<here++<<std::endl;
+  //          std::cout<<here++<<std::endl;
   //          result.data = ser.read(ser.available());
         ser.readline(result.data);
         s=result.data;
         ROS_INFO_STREAM(result.data);
-        if(s[0]=='a'){
-            s1=s.substr(1,12);   //将每一个acc的值从buffer中取出来
+                if(s[0]=='a'){
+              //将每一个acc的值从buffer中取出来
             swap=s.substr(1,30);
             n2=swap.find('a');
+            s1=s.substr(1,n2-1); 
             std::cout<<swap<<std::endl;
             n3=s.rfind('a');
-            s2=s.substr(n2+2,12);
-            std::cout<<s2<<std::endl;
+            s2=s.substr(n2+2,n3-1);
             s3=s.substr(n3+1,12);
             acc[0]=stringToNum<float>(s1);
             acc[1]=stringToNum<float>(s2);
@@ -103,11 +104,12 @@ int main (int argc, char** argv)
             count++;
         }
         if(s[0]=='b'){
-            s1=s.substr(1,12);   //将每一个ang的值从buffer中取出来
+             //将每一个ang的值从buffer中取出来
             swap=s.substr(1,30);
             n2=swap.find('b');
             n3=s.rfind('b');
-            s2=s.substr(n2+2,12);
+            s1=s.substr(1,n2-1); 
+            s2=s.substr(n2+2,n3-1);
             
             s3=s.substr(n3+1,12);
             ang[0]=stringToNum<float>(s1);
@@ -116,18 +118,19 @@ int main (int argc, char** argv)
             count++;
         }
         if(s[0]=='c'){
-            s1=s.substr(1,5);   //将每一个mag的值从buffer中取出来
+               //将每一个mag的值从buffer中取出来
             swap=s.substr(1,30);
             n2=swap.find('c');
             n3=s.rfind('c');
-            s2=s.substr(n2+2,5);
+            s1=s.substr(1,n2-1);
+            s2=s.substr(n2+2,n3-1);
             s3=s.substr(n3+1,5);
             mag[0]=stringToNum<int>(s1);
             mag[1]=stringToNum<int>(s2);
             mag[2]=stringToNum<int>(s3);
             count++;
-        }
-        if(count==3){
+    //    }
+    //    if(count==3){
             count=0;
             Seq++;
             HelloRoboto_imu.header.seq = Seq;
@@ -180,7 +183,11 @@ int main (int argc, char** argv)
     HelloRoboto_mag.magnetic_field_covariance[6] = 0;  
     HelloRoboto_mag.magnetic_field_covariance[7] = 0;  
     HelloRoboto_mag.magnetic_field_covariance[8] = 0;         
-        
+
+            HelloRoboto_imu.header.stamp = ros::Time::now();
+            HelloRoboto_imu.header.frame_id = "base_link";
+            HelloRoboto_mag.header.stamp = ros::Time::now();
+            HelloRoboto_mag.header.frame_id = "base_link";
  //       result.data= s.substr(0,20);
  //       ROS_INFO_STREAM(result.data[0]); 
 
